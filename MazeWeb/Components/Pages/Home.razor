@@ -1,0 +1,64 @@
+﻿@page "/"
+@inject NavigationManager Navigation
+
+<PageTitle>Home</PageTitle>
+
+<h1>Maze Game</h1>
+Welcome to the maze game!
+<br>
+
+@if (!gameStarted)
+{
+    <br>
+        <div>
+            <form @onsubmit="startGame">
+                <input @bind="mazeSeed" placeholder="Enter the Map Seed/Name" />
+                <input type="submit" value="Confirm" />
+            </form>
+        </div>
+    @* <button @onclick="startGame">Confirm</button> *@
+}
+
+else
+{
+    <br>
+    <button @onclick="joinGame">Join the Normal Maze</button>
+    <button @onclick="joinGameTwisty">Join the Twisty Maze</button>
+}
+
+<p style="color:red;">@invalidName</p>
+
+
+@code {
+    public string mazeSeed;
+    private string? invalidName;
+    public static bool gameStarted;
+
+    void startGame()
+    {
+        if (!string.IsNullOrWhiteSpace(mazeSeed))
+        {
+            Console.WriteLine($"Starting game with seed: {mazeSeed}");
+            MazeGame.Instance.StartNewMaze(mazeSeed);
+            MazeGame.TwistyInstance.StartNewTwistyMaze(mazeSeed);
+            invalidName = null;
+            gameStarted = true;
+            StateHasChanged();
+        }
+        else
+        {
+            gameStarted = false;
+            invalidName = "Please enter a valid name";
+            mazeSeed = null;
+            StateHasChanged();
+        }
+    }
+    void joinGame()
+    {
+        Navigation.NavigateTo("/GamePage");
+    }
+    void joinGameTwisty()
+    {
+        Navigation.NavigateTo("/GamePageTwisty");
+    }
+}

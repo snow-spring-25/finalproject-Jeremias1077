@@ -1,0 +1,153 @@
+@page "/GamePage"
+<a href="/">Return</a>
+<br>
+<a href="/Solutions">View Solutions</a>
+<br>
+
+
+@if (hasName == true)
+{
+    //check if leaderboard works
+    <h2>Leaderboard</h2>
+    <table border="1" style="color: rgb(34, 31, 43); text-align:center;">
+        <tr>
+            <th>Player Name</th>
+            <th>Current Cell</th>
+            <th>Items Collected</th>
+        </tr>
+        @foreach (var player in MazeGame.Instance.Players.Values)
+        {
+            <tr>
+                <td>
+                    @(MazeGame.Instance.Winner == player ? $"{player.Name} 👑" : player.Name)
+                </td>
+                <td>@player.Location.Id</td>
+                <td>@string.Join(", ", player.Items.Select(item => item.ToString()))</td>
+            </tr>
+        }
+    </table>
+
+    <head>
+        <style>
+            h1 {
+                text-align: center;
+            }
+
+            p {
+                text-align: center;
+            }
+
+            div {
+                text-align: center;
+            }
+
+            input {
+                text-align: center;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <h1>Normal Maze</h1>
+        <p style="color: blue;">You are currently in cell @myLocation
+            <br>
+            You Found: @myLocation.WhatsHere
+        </p>
+        <br>
+        <p>You have made @currentPlayer.MoveCount moves.</p>
+        <div>
+            <form @onsubmit="MakeMove">
+                <input @bind="userInput" placeholder="Enter direction" />
+                <input type="submit" value="Move" />
+            </form>
+        </div>
+        @if (hintsVisible)
+        {
+            <ul>
+                <li>North @myLocation.North</li>
+                <li>South @myLocation.South</li>
+                <li>East @myLocation.East</li>
+                <li>West @myLocation.West</li>
+            </ul>
+            <button @onclick=@(() => hintsVisible = false)>Hide Hints</button>
+        }
+        else
+        {
+            <button @onclick=@(() => hintsVisible = true)>Show Hints</button>
+        }
+    </body>
+
+    <h2>Move History</h2>
+    <ul style="color: rgb(129, 218, 137);">
+        @foreach (var move in moveHistory)
+        {
+            <li>@move</li>
+        }
+    </ul>
+}
+else
+{
+    <form @onsubmit="HasEnteredName">
+        <input @bind="playerName" placeholder="Enter Your Username" />
+        <input type="submit" value="Confirm" />
+    </form>
+}
+
+<p style="color:red;">@invalidName</p>
+
+
+@code
+{
+    bool hintsVisible = false;
+    private string? invalidName;
+    string playerName = null;
+    bool hasName = false;
+    private MazeCell myLocation = MazeGame.Instance.StartingLocation;
+    private string? userInput;
+    private string moveMessage = "";
+    private List<string> moveHistory = new List<string>();
+    Player currentPlayer = null;
+
+    void MakeMove()
+    {
+        (myLocation, moveMessage) = MazeGame.Instance.Movement(userInput, myLocation, playerName);
+        moveHistory.Insert(0, moveMessage);
+        userInput = null;
+        currentPlayer.MoveCount++;
+
+        if (moveHistory.Count > 10)
+        {
+            moveHistory.RemoveAt(moveHistory.Count - 1);
+        }
+        StateHasChanged();
+    }
+
+    void HasEnteredName()
+    {
+        if (string.IsNullOrWhiteSpace(playerName))
+        {
+            invalidName = "Please enter a valid name";
+            playerName = null;
+            hasName = false;
+        }
+        else if (MazeGame.Instance.Players.ContainsKey(playerName))
+        {
+            invalidName = "This name is already taken. Please choose another name";
+            hasName = false;
+        }
+        else
+        {
+            currentPlayer = new Player { Name = playerName, Location = myLocation };
+            MazeGame.Instance.Players.Add(playerName, currentPlayer);
+            invalidName = null;
+            hasName = true;
+        }
+        StateHasChanged();
+    }
+    protected override void OnInitialized()
+    {
+        MazeGame.Instance.UpdateLeaderboard += () => InvokeAsync(StateHasChanged);
+    }
+
+}

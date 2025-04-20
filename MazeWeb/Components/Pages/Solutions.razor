@@ -1,0 +1,47 @@
+@page "/Solutions"
+
+@using MermaidJS.Blazor
+<a href="/GamePage">Return</a>
+<br>
+<br>
+
+<PageTitle>BasicMaze Maze</PageTitle>
+
+<button @onclick="GenerateMaze"> Show Normal Maze</button>
+<button @onclick="GenerateTwistyeMaze"> Show Twisty Maze</button>
+@if (pathOutOfMaze != "")
+{
+    <MermaidDiagram Definition="@pathOutOfMaze" />
+}
+<p></p>
+<p></p>
+<p></p>
+@if (pathOutOfTwistyMaze != "")
+{
+    <MermaidDiagram Definition="@pathOutOfTwistyMaze" />
+}
+
+@code
+{
+    string name = MazeGame.Instance.MazeName;
+    string pathOutOfMaze = "";
+    string pathOutOfTwistyMaze = "";
+    private void GenerateMaze()
+    {
+        Console.WriteLine("Generating Solution for Regular Maze");
+        var path = MazeUtilities.ExploreMaze(MazeGame.Instance.StartingLocation);
+        var path2 = MazeUtilities.ExploreMaze(MazeGame.Instance.StartingLocation);
+        var instructions = path.Select(node => $"{node.From.Id}[\"{node.From}\"]--{node.Label}-->{node.To.Id}[\"{node.To}\"]");
+        pathOutOfMaze = "graph TD\n" + string.Join("\n", instructions);
+        Console.WriteLine(pathOutOfMaze);
+    }
+
+    private void GenerateTwistyeMaze()
+    {
+        Console.WriteLine("Generating Solution for Twisty Maze");
+        var path = MazeUtilities.ExploreMaze(MazeGame.TwistyInstance.StartingLocation);
+        var instructions = path.Select(node => $"{node.From.Id}[\"{node.From}\"]--{node.Label}-->{node.To.Id}[\"{node.To}\"]");
+        pathOutOfTwistyMaze = "graph TD\n" + string.Join("\n", instructions);
+        Console.WriteLine(pathOutOfTwistyMaze);
+    }
+}

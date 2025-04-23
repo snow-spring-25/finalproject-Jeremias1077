@@ -58,6 +58,7 @@
         <p>You have made @currentPlayer.MoveCount moves.</p>
         <div>
             <form @onsubmit="MakeMove">
+                <div title="north, south, east, west">Hover this text to see the instructions.</div>
                 <input @bind="userInput" placeholder="Enter direction" />
                 <input type="submit" value="Move" />
             </form>

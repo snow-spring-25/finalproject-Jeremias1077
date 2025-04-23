@@ -18,7 +18,7 @@ class SQLiteHighScoreManager : IDataStore
 
     public IEnumerable<HighScore> GetHighScores()
     {
-        return _connection.Table<HighScore>().ToList();
+        return _connection.Table<HighScore>().OrderBy(h=>h.TotalMoves).ToList();
     }
 
     public void UpdateScore(HighScore highScores)

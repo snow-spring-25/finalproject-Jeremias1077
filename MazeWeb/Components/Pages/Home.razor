@@ -10,14 +10,12 @@ Welcome to the maze game!
 @if (!gameStarted)
 {
     <br>
-        <div>
-            <form @onsubmit="startGame">
-                <input @bind="mazeSeed" placeholder="Enter the Map Seed/Name" />
-                <input type="submit" value="Confirm" />
-            </form>
-        </div>
-    @* <button @onclick="startGame">Confirm</button> *@
-}
+    <div>
+        <form @onsubmit="startGame">
+            <input @bind="mazeSeed" placeholder="Enter the Map Seed/Name" />
+            <input type="submit" value="Confirm" />
+        </form>
+    </div>}
 
 else
 {
@@ -27,6 +25,33 @@ else
 }
 
 <p style="color:red;">@invalidName</p>
+
+<br>
+<br>
+<h4>High Scores:</h4>
+<table border="1" style="color: rgb(34, 31, 43); text-align:center;">
+    <tr>
+        <th>Maze Type</th>
+        <th>Player Name</th>
+        <th>Total Moves</th>
+        <th>TimeStamp</th>
+
+    </tr>
+    @foreach (var highscore in IDataStore.Instance.GetHighScores())
+
+    {
+        <tr>
+            <td>
+                @highscore.MazeType
+            </td>
+            <td>@highscore.PlayerName</td>
+            <td>@highscore.TotalMoves</td>
+            <td>@highscore.Timestamp</td>
+
+        </tr>
+    }
+</table>
+
 
 
 @code {
